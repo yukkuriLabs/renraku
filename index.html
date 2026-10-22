@@ -576,10 +576,12 @@ function setupPush(appId) {
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function (OneSignal) {
     try {
+      /* リポジトリをサブパス(/renraku/)で配信しているため絶対パスで指定する */
+      var base = location.pathname.replace(/[^/]*$/, ''); // '/renraku/' 等
       await OneSignal.init({
         appId: appId,
-        serviceWorkerPath: 'sw.js',
-        serviceWorkerParam: { scope: './' },
+        serviceWorkerPath: base + 'sw.js',
+        serviceWorkerParam: { scope: base },
         notifyButton: { enable: false },
         allowLocalhostAsSecureOrigin: true
       });
@@ -872,9 +874,12 @@ function closeDiag() { document.getElementById('diagModal').classList.remove('sh
 function sendTestPush() {
   api({ action: 'test_push' }).then(function (r) {
     if (!r || !r.ok) throw new Error((r && r.error) || '送信できませんでした');
-    alert(r.sent
-      ? 'テスト通知を送信しました。\n通知許可済みの端末に数秒〜数十秒で届きます。\n(来ない場合は OneSignal のキーと通知許可を確認)'
-      : '送信処理はしましたが、OneSignal のキーが未設定の可能性があります。上の赤い項目を確認してください。');
+    var msg = r.sent
+      ? '✅ 送信成功(HTTP ' + r.code + ')\n'
+      : '⚠️ 送信失敗(HTTP ' + r.code + ')\n';
+    msg += 'OneSignalの返事: ' + (r.response || '(なし)') + '\n\n';
+    msg += '"recipients":0 なら相手ゼロ、"errors" があれば内容を確認。';
+    alert(msg);
   }).catch(function (e) {
     alert('エラー: ' + e.message);
   });
