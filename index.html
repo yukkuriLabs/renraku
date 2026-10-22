@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- ===== PWA ===== -->
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="学校連絡">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+
+<!-- ===== 通知 (OneSignal) ===== -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<title>学校プリント・連絡</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #f2f4f8; color: #1c2430;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    -webkit-text-size-adjust: 100%; }
+  .wrap { max-width: 640px; margin: 0 auto; padding-bottom: 96px; }
+
+  header { background: linear-gradient(135deg, #2f6fed, #4f8cff); color: #fff;
+    padding: 14px 14px 14px; position: sticky; top: 0; z-index: 20;
+    box-shadow: 0 2px 8px rgba(47,111,237,.25); }
+  header h1 { margin: 0; font-size: 18px; letter-spacing: .5px; padding-right: 96px; }
+  .stats { display: flex; gap: 8px; margin-top: 10px; }
+  .stat { background: rgba(255,255,255,.18); border-radius: 10px; padding: 7px 11px;
+    font-size: 12.5px; flex: 1; text-align: center; }
+  .stat b { display: block; font-size: 19px; line-height: 1.2; }
+  .stat.alert { background: rgba(255,86,86,.55); }
+
+  .bell { position: absolute; right: 12px; top: 12px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.22); color: #fff; border-radius: 999px;
+    padding: 7px 12px; font-size: 12.5px; font-weight: 700; }
+  .bell.on { background: #16a34a; }
+
+  .banner { display: none; margin: 10px 12px 0; padding: 11px 13px; border-radius: 12px;
+    font-size: 14.5px; font-weight: 700; line-height: 1.5; }
+  .banner.show { display: block; }
+  .banner.red { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .banner.orange { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+
+  .chips { display: flex; gap: 8px; padding: 12px 12px 4px; overflow-x: auto; }
+  .chip { border: 1px solid #d5dbe6; background: #fff; color: #445; border-radius: 999px;
+    padding: 7px 14px; font-size: 14px; white-space: nowrap; cursor: pointer; }
+  .chip.on { background: #2f6fed; border-color: #2f6fed; color: #fff; font-weight: 600; }
+
+  .list { padding: 8px 12px; }
+  .card { background: #fff; border-radius: 14px; padding: 12px 13px; margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(20,30,50,.08); border-left: 6px solid #94a3b8; position: relative; }
+  .card.t0 { border-left-color: #2f6fed; }
+  .card.t1 { border-left-color: #16a34a; }
+  .card.t2 { border-left-color: #f97316; }
+  .card.t3 { border-left-color: #94a3b8; }
+  .card.over { border-left-color: #ef4444; background: #fff5f5; }
+  .card.done { opacity: .55; }
+  .row1 { display: flex; align-items: flex-start; gap: 8px; }
+  .title { font-size: 16.5px; font-weight: 700; flex: 1; line-height: 1.4; word-break: break-word; }
+  .card.done .title { text-decoration: line-through; }
+  .badge { font-size: 11.5px; padding: 3px 8px; border-radius: 999px; background: #eef2f8;
+    color: #4a5768; white-space: nowrap; font-weight: 600; }
+  .detail { font-size: 14.5px; color: #4b5768; margin-top: 6px; line-height: 1.55;
+    white-space: pre-wrap; word-break: break-word; }
+  .due { display: inline-block; margin-top: 8px; font-size: 13.5px; font-weight: 700;
+    background: #eef2f8; padding: 4px 9px; border-radius: 8px; color: #33445c; }
+  .due.soon { background: #ffedd5; color: #c2410c; }
+  .due.today { background: #fee2e2; color: #b91c1c; }
+  .due.none { background: transparent; color: #8b96a8; padding-left: 0; font-weight: 500; }
+  .meta { font-size: 12px; color: #93a0b2; margin-top: 7px; }
+  .acts { display: flex; gap: 8px; margin-top: 10px; }
+  .btn { border: 1px solid #d5dbe6; background: #f8fafc; color: #33445c; border-radius: 9px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer; flex: 1; }
+  .btn.primary { background: #16a34a; border-color: #16a34a; color: #fff; font-weight: 700; }
+  .btn.blue { background: #2f6fed; border-color: #2f6fed; color: #fff; }
+  .btn.danger { color: #dc2626; }
+  .btn:active { transform: scale(.98); }
+
+  .empty { text-align: center; color: #8b96a8; padding: 44px 20px; font-size: 15px; line-height: 1.8; }
+
+  .fab { position: fixed; right: 18px; bottom: 22px; width: 60px; height: 60px; border-radius: 50%;
+    background: #2f6fed; color: #fff; font-size: 32px; line-height: 60px; text-align: center;
+    box-shadow: 0 6px 16px rgba(47,111,237,.45); cursor: pointer; z-index: 30; border: none; }
+
+  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none;
+    z-index: 40; align-items: flex-end; justify-content: center; }
+  .modal.show { display: flex; }
+  .sheet { background: #fff; width: 100%; max-width: 640px; border-radius: 20px 20px 0 0;
+    padding: 18px 16px 26px; max-height: 92vh; overflow-y: auto; }
+  .sheet h2 { margin: 0 0 14px; font-size: 17px; }
+  label { display: block; font-size: 13px; color: #5b6778; font-weight: 700; margin: 14px 0 6px; }
+  input[type=text], input[type=date], select, textarea {
+    width: 100%; padding: 12px; font-size: 16px; border: 1px solid #d5dbe6;
+    border-radius: 10px; background: #fff; }
+  textarea { min-height: 88px; resize: vertical; }
+  .typepick { display: flex; gap: 8px; flex-wrap: wrap; }
+  .typepick .btn { text-align: center; min-width: 70px; flex: initial; }
+  .typepick .btn.sel { background: #2f6fed; border-color: #2f6fed; color: #fff; font-weight: 700; }
+  .sheet .acts2 { display: flex; gap: 10px; margin-top: 20px; }
+  .hint { font-size: 12px; color: #93a0b2; margin-top: 6px; }
+  .loading { text-align: center; color: #8b96a8; padding: 30px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>学校プリント・連絡</h1>
+    <button class="bell" id="bell" style="display:none" onclick="askPush()">🔔 通知を有効にする</button>
+    <div class="stats">
+      <div class="stat" id="stOpen"><b>–</b>未完了</div>
+      <div class="stat alert" id="stOver"><b>–</b>期限切れ</div>
+      <div class="stat" id="stToday"><b>–</b>今日/明日締切</div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="chips" id="chips">
+    <div class="chip on" data-f="all">すべて</div>
+    <div class="chip" data-f="プリント">プリント</div>
+    <div class="chip" data-f="連絡">連絡</div>
+    <div class="chip" data-f="締切">締切</div>
+    <div class="chip" data-f="メモ">メモ</div>
+    <div class="chip" data-f="done">完了済み</div>
+  </div>
+
+  <div class="list" id="list"><div class="loading">読み込み中…</div></div>
+</div>
+
+<button class="fab" onclick="openForm()">＋</button>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeForm()">
+  <div class="sheet">
+    <h2 id="formTitle">新しい登録</h2>
+
+    <label>種別</label>
+    <div class="typepick" id="typepick">
+      <div class="btn sel" data-t="プリント">プリント</div>
+      <div class="btn" data-t="連絡">連絡</div>
+      <div class="btn" data-t="締切">締切</div>
+      <div class="btn" data-t="メモ">メモ</div>
+    </div>
+
+    <label>タイトル <span style="color:#dc2626">*</span></label>
+    <input type="text" id="fTitle" maxlength="100" placeholder="例) 修学旅行の同意書">
+
+    <label>締切日</label>
+    <input type="date" id="fDue">
+    <div class="hint">締切を入れると前日・当日に家族へ自動で通知されます</div>
+
+    <label>詳細・メモ</label>
+    <textarea id="fDetail" maxlength="1000" placeholder="例) 9/25(金)までに記入して持っていく"></textarea>
+
+    <label>名前(誰が書いたか)</label>
+    <input type="text" id="fAuthor" maxlength="20" placeholder="例) みどり">
+
+    <div class="acts2">
+      <button class="btn" onclick="closeForm()">キャンセル</button>
+      <button class="btn primary" onclick="save()" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+ * ★★★ 初回だけ設定 ★★★
+ * 「セットアップ手順.md」の③でコピーした Apps Script のURLを
+ * 下の行に貼り付けてください(quotes の中身だけ置き換え)。
+ * 例: var API_BASE = 'https://script.google.com/macros/s/AKfycb.../exec';
+ * ========================================================================== */
+var API_BASE = 'https://script.google.com/macros/s/AKfycbxpskMBipMu04iCVIdWE4rTBRB6xvNPjBQ7rPenWRJeEj6i_nCXUYmdiEYpzFz9TZVnbw/exec';
+
+var DATA = [];
+var filter = 'all';
+var editingId = null;
+var curType = 'プリント';
+var pushReady = false;
+var OS = null;
+
+/* =============================== 通信 (JSONP) ============================ */
+var cbSeq = 0;
+function api(params) {
+  return new Promise(function (resolve, reject) {
+    if (API_BASE.indexOf('script.google.com') < 0 || API_BASE.indexOf('PASTE_YOUR_URL') >= 0) {
+      reject(new Error('index.html の API_BASE に Apps Script のURLが設定されていません'));
+      return;
+    }
+    var cb = '__jp' + (++cbSeq);
+    var s = document.createElement('script');
+    var qs = Object.keys(params).map(function (k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+
+    var timer = setTimeout(function () { fin(new Error('タイムアウトしました')); }, 25000);
+    function fin(err, val) {
+      clearTimeout(timer);
+      if (s.parentNode) s.parentNode.removeChild(s);
+      try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+      if (err) reject(err); else resolve(val);
+    }
+    window[cb] = function (data) { fin(null, data); };
+    s.src = API_BASE + '?' + qs + '&callback=' + cb + '&_=' + Date.now();
+    s.onerror = function () { fin(new Error('通信エラー(ネットワーク)')); };
+    document.head.appendChild(s);
+  });
+}
+
+/* =============================== 表示 ==================================== */
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function dayDiff(ymd) {
+  if (!ymd) return null;
+  var t = new Date(); t.setHours(0, 0, 0, 0);
+  var d = new Date(ymd + 'T00:00:00');
+  if (isNaN(d.getTime())) return null;
+  return Math.round((d - t) / 86400000);
+}
+
+function dueInfo(item) {
+  var n = dayDiff(item.due);
+  if (n === null) return { cls: 'none', txt: '締切なし' };
+  if (item.done) return { cls: '', txt: item.due + ' 締切' };
+  if (n < 0) return { cls: 'today', txt: '期限切れ(+' + (-n) + '日)' };
+  if (n === 0) return { cls: 'today', txt: '本日締切!' };
+  if (n === 1) return { cls: 'soon', txt: '明日締切' };
+  if (n <= 7) return { cls: 'soon', txt: item.due + 'まであと' + n + '日' };
+  return { cls: '', txt: item.due + 'まであと' + n + '日' };
+}
+
+function render() {
+  var open = DATA.filter(function (x) { return !x.done; });
+  document.getElementById('stOpen').innerHTML = '<b>' + open.length + '</b>未完了';
+
+  var over = open.filter(function (x) { var n = dayDiff(x.due); return n !== null && n < 0; });
+  document.getElementById('stOver').innerHTML = '<b>' + over.length + '</b>期限切れ';
+
+  var today = open.filter(function (x) { var n = dayDiff(x.due); return n === 0; });
+  var tomorrow = open.filter(function (x) { var n = dayDiff(x.due); return n === 1; });
+  document.getElementById('stToday').innerHTML = '<b>' + (today.length + tomorrow.length) + '</b>今日/明日締切';
+
+  /* 締切アラートバー */
+  var b = document.getElementById('banner');
+  if (over.length) {
+    b.className = 'banner show red';
+    b.textContent = '⚠ 期限切れが ' + over.length + ' 件あります: ' +
+      over.slice(0, 3).map(function (x) { return x.title; }).join(' / ');
+  } else if (today.length) {
+    b.className = 'banner show orange';
+    b.textContent = '⏰ 本日締切が ' + today.length + ' 件あります: ' +
+      today.slice(0, 3).map(function (x) { return x.title; }).join(' / ');
+  } else {
+    b.className = 'banner';
+    b.textContent = '';
+  }
+
+  var items = DATA.filter(function (x) {
+    if (filter === 'done') return x.done;
+    if (x.done) return false;
+    if (filter === 'all') return true;
+    return x.type === filter;
+  });
+
+  items.sort(function (a, b2) {
+    if (a.done !== b2.done) return a.done ? 1 : -1;
+    var da = dayDiff(a.due), db = dayDiff(b2.due);
+    if (da === null && db === null) return (b2.created || '').localeCompare(a.created || '');
+    if (da === null) return 1;
+    if (db === null) return -1;
+    return da - db;
+  });
+
+  var el = document.getElementById('list');
+  if (!items.length) {
+    el.innerHTML = '<div class="empty">表示する項目はありません。<br>右下の <b>＋</b> から追加できます。</div>';
+    return;
+  }
+
+  var typeIdx = { 'プリント': 0, '連絡': 1, '締切': 2, 'メモ': 3 };
+  el.innerHTML = items.map(function (it) {
+    var di = dueInfo(it);
+    var n = dayDiff(it.due);
+    var cls = 'card t' + (typeIdx[it.type] != null ? typeIdx[it.type] : 3);
+    if (!it.done && n !== null && n < 0) cls += ' over';
+    if (it.done) cls += ' done';
+
+    var acts = it.done
+      ? '<button class="btn" onclick="toggle(\'' + it.id + '\',false)">元に戻す</button>' +
+        '<button class="btn" onclick="openForm(\'' + it.id + '\')">編集</button>' +
+        '<button class="btn danger" onclick="del(\'' + it.id + '\')">削除</button>'
+      : '<button class="btn primary" onclick="toggle(\'' + it.id + '\',true)">完了 ✓</button>' +
+        '<button class="btn blue" onclick="openForm(\'' + it.id + '\')">編集</button>' +
+        '<button class="btn danger" onclick="del(\'' + it.id + '\')">削除</button>';
+
+    return '<div class="' + cls + '">' +
+      '<div class="row1"><div class="title">' + esc(it.title) + '</div>' +
+      '<div class="badge">' + esc(it.type) + '</div></div>' +
+      (it.detail ? '<div class="detail">' + esc(it.detail) + '</div>' : '') +
+      '<span class="due ' + di.cls + '">' + esc(di.txt) + '</span>' +
+      '<div class="meta">' + esc(it.author || '名無し') + ' が登録' + (it.created ? ' ・ ' + esc(it.created) : '') + '</div>' +
+      '<div class="acts">' + acts + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+/* =============================== データ読み込み ========================== */
+function load() {
+  api({ action: 'list' }).then(function (res) {
+    if (!res || !res.ok) throw new Error((res && res.error) || 'サーバーエラー');
+    DATA = res.items || [];
+    if (!pushReady && res.config && res.config.onesignalAppId &&
+        res.config.onesignalAppId.indexOf('貼り付け') < 0) {
+      pushReady = true;
+      setupPush(res.config.onesignalAppId);
+    }
+    render();
+  }).catch(function (e) {
+    document.getElementById('list').innerHTML =
+      '<div class="empty">読み込みに失敗しました。<br>' + esc(e.message) +
+      '<br><br><button class="btn blue" style="max-width:200px;margin:0 auto" onclick="load()">再試行</button></div>';
+  });
+}
+
+/* =============================== 通知 (OneSignal) ======================== */
+function setupPush(appId) {
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function (OneSignal) {
+    try {
+      await OneSignal.init({
+        appId: appId,
+        serviceWorkerPath: 'sw.js',
+        serviceWorkerParam: { scope: './' },
+        notifyButton: { enable: false },
+        allowLocalhostAsSecureOrigin: true
+      });
+      OS = OneSignal;
+      updateBell();
+    } catch (e) { console.warn('OneSignal init失敗', e); }
+  });
+}
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function askPush() {
+  if (!OS) { alert('まだ準備中です。少し待ってからもう一度お試しください。'); return; }
+
+  /* iPhone は Safari のタブでは通知不可 → ホーム画面追加が必須 */
+  if (isIOS() && navigator.standalone !== true) {
+    alert('iPhone で通知を受け取るには:\n\n' +
+      '1) Safari でこのページを開いたまま\n' +
+      '2) 下部の 共有ボタン(□↑)\n' +
+      '3)「ホーム画面に追加」\n' +
+      '4) ホーム画面のアイコンから開き直す\n' +
+      '5)「通知を有効にする」をタップ\n\n' +
+      '(iOS 16.4 以降が必要です)');
+    return;
+  }
+
+  OS.Notifications.requestPermission(true).then(function (granted) {
+    updateBell();
+    if (!granted) {
+      alert('通知が許可されていません。\n設定 → 通知 からこのWebアプリを許可してください。');
+    }
+  }).catch(function (e) {
+    alert('エラー: ' + (e && e.message ? e.message : e));
+  });
+}
+
+function updateBell() {
+  var btn = document.getElementById('bell');
+  if (!OS) { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  Promise.resolve(OS.Notifications.permission).then(function (p) {
+    if (p === 'granted') {
+      btn.textContent = '🔔 通知ON';
+      btn.classList.add('on');
+      btn.onclick = function () { alert('通知は有効です。締切の3日前・前日・当日に自動でお知らせします。'); };
+    } else {
+      btn.textContent = '🔔 通知を有効にする';
+      btn.classList.remove('on');
+    }
+  }).catch(function () {});
+}
+
+/* =============================== 操作 ==================================== */
+function toggle(id, done) {
+  api({ action: 'update', id: id, done: String(done) }).then(load).catch(function (e) {
+    alert('エラー: ' + e.message);
+  });
+}
+
+function del(id) {
+  if (!confirm('この項目を削除しますか?')) return;
+  api({ action: 'remove', id: id }).then(load).catch(function (e) {
+    alert('エラー: ' + e.message);
+  });
+}
+
+function setType(t) {
+  curType = t;
+  document.querySelectorAll('#typepick .btn').forEach(function (el) {
+    el.classList.toggle('sel', el.getAttribute('data-t') === t);
+  });
+}
+
+document.getElementById('typepick').addEventListener('click', function (e) {
+  var b = e.target.closest('.btn'); if (b) setType(b.getAttribute('data-t'));
+});
+
+function openForm(id) {
+  editingId = id || null;
+  var it = id ? DATA.filter(function (x) { return x.id === id; })[0] : null;
+  document.getElementById('formTitle').textContent = it ? '編集' : '新しい登録';
+  document.getElementById('fTitle').value = it ? it.title : '';
+  document.getElementById('fDue').value = it ? (it.due || '') : '';
+  document.getElementById('fDetail').value = it ? (it.detail || '') : '';
+  document.getElementById('fAuthor').value = it ? (it.author || '') : (localStorage.getItem('author') || '');
+  setType(it ? it.type : 'プリント');
+  document.getElementById('modal').classList.add('show');
+  setTimeout(function () { if (!it) document.getElementById('fTitle').focus(); }, 80);
+}
+
+function closeForm() { document.getElementById('modal').classList.remove('show'); }
+
+function save() {
+  var title = document.getElementById('fTitle').value.trim();
+  if (!title) { alert('タイトルを入力してください'); document.getElementById('fTitle').focus(); return; }
+
+  var payload = {
+    type: curType,
+    title: title,
+    due: document.getElementById('fDue').value,
+    detail: document.getElementById('fDetail').value.trim(),
+    author: document.getElementById('fAuthor').value.trim()
+  };
+  if (payload.author) localStorage.setItem('author', payload.author);
+
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '保存中…';
+
+  var p = editingId ? Object.assign({ action: 'update', id: editingId }, payload)
+                    : Object.assign({ action: 'add' }, payload);
+  api(p).then(function (res) {
+    if (!res || !res.ok) throw new Error((res && res.error) || '保存に失敗しました');
+    btn.disabled = false; btn.textContent = '保存';
+    closeForm(); load();
+  }).catch(function (e) {
+    btn.disabled = false; btn.textContent = '保存';
+    alert('保存に失敗しました: ' + e.message);
+  });
+}
+
+document.getElementById('chips').addEventListener('click', function (e) {
+  var c = e.target.closest('.chip'); if (!c) return;
+  document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+  c.classList.add('on');
+  filter = c.getAttribute('data-f');
+  render();
+});
+
+/* =============================== 起動 ==================================== */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function (e) {
+      console.warn('SW登録失敗', e);
+    });
+  });
+}
+
+load();
+setInterval(function () {
+  if (!document.getElementById('modal').classList.contains('show')) load();
+}, 45000);
+
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' &&
+      !document.getElementById('modal').classList.contains('show')) load();
+});
+</script>
+</body>
+</html>
