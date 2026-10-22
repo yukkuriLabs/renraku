@@ -853,6 +853,8 @@ function runDiag() {
     document.getElementById('diagBody').innerHTML =
       row('OneSignal App ID', d.onesignalAppId, d.onesignalAppId === '(未設定)') +
       row('REST API Key', d.restKeySet ? '設定済' : '未設定', !d.restKeySet) +
+      row('OneSignal登録端末数', d.subscribers || '(不明)',
+          !d.subscribers || d.subscribers.indexOf('0 台') === 0) +
       row('通知送信先サイトURL', d.siteUrl, d.siteUrl === '(未設定)') +
       row('締切自動通知トリガー', d.triggerCount + ' 件(毎日7時/19時)', d.triggerCount === 0) +
       row('登録ユーザー', d.users + ' 人', d.users === 0) +
