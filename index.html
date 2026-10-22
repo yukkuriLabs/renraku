@@ -214,6 +214,7 @@
     <div class="chip" data-f="締切">締切</div>
     <div class="chip" data-f="メモ">メモ</div>
     <div class="chip" data-f="done">完了済み</div>
+    <div class="chip" data-f="__diag">🩺診断</div>
   </div>
 
   <div class="list" id="list"><div class="loading">読み込み中…</div></div>
@@ -258,6 +259,20 @@
     <div class="acts2">
       <button class="btn" onclick="closeForm()">キャンセル</button>
       <button class="btn primary" onclick="save()" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 診断 ================= -->
+<div class="modal" id="diagModal" onclick="if(event.target===this)closeDiag()">
+  <div class="sheet">
+    <h2>ヘルプ / 診断</h2>
+    <div id="diagBody" style="font-size:14px;line-height:2">確認中…</div>
+    <div class="hint" style="margin-top:14px">赤い項目がある場合は、その行の手順を Apps Script 側で実行してください。
+      エラーが続くときは、この画面の内容をそのまま人に見せると早く直せます。</div>
+    <div class="acts2">
+      <button class="btn" onclick="closeDiag()">閉じる</button>
+      <button class="btn blue" onclick="sendTestPush()">テスト通知を送る</button>
     </div>
   </div>
 </div>
@@ -792,27 +807,76 @@ function uploadImage(itemId) {
 }
 
 function pollImage(itemId, n) {
-  return api({ action: 'list' }).then(function (res) {
-    var items = (res && res.items) || [];
-    var it = null;
-    for (var i = 0; i < items.length; i++) if (items[i].id === itemId) it = items[i];
-    if (it && it.image) return true;
-    if (n >= 12) {
-      alert('画像の保存に時間がかかっています。\n少ししてからアプリを開くと、反映されているはずです。');
-      return false;
-    }
-    return new Promise(function (r) { setTimeout(r, 2500); })
-      .then(function () { return pollImage(itemId, n + 1); });
-  });
+  return api({ action: 'upload_result', itemId: itemId })
+    .catch(function () { return { result: null }; })
+    .then(function (r) {
+      var res = r && r.result;
+      if (res && res.ok && res.imageId) return true;              // 保存成功
+      if (res && res.ok === false) throw new Error(res.error || '不明なエラー'); // サーバー側エラーをそのまま表示
+
+      // 結果がまだ無い → もう少し待って list で確認
+      if (n >= 12) {
+        return api({ action: 'list' }).then(function (listRes) {
+          var items = (listRes && listRes.items) || [];
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].id === itemId && items[i].image) return true;
+          }
+          throw new Error('サーバーが応答しません。Apps Script の実行履歴(歯車アイコン)を確認してください。');
+        });
+      }
+      return new Promise(function (r2) { setTimeout(r2, 2500); })
+        .then(function () { return pollImage(itemId, n + 1); });
+    });
 }
 
 document.getElementById('chips').addEventListener('click', function (e) {
   var c = e.target.closest('.chip'); if (!c) return;
+  var f = c.getAttribute('data-f');
+  if (f === '__diag') { runDiag(); return; }
   document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
   c.classList.add('on');
-  filter = c.getAttribute('data-f');
+  filter = f;
   render();
 });
+
+/* ---------- 診断 ---------- */
+function runDiag() {
+  document.getElementById('diagBody').innerHTML = '確認中…';
+  document.getElementById('diagModal').classList.add('show');
+  api({ action: 'diag' }).then(function (r) {
+    if (!r || !r.ok) throw new Error((r && r.error) || 'サーバーエラー');
+    var d = r.diag;
+    function row(label, val, warn) {
+      return '<div>' + (warn ? '🔴' : '🟢') + ' ' + label + ': <b>' + esc(val) + '</b>'
+        + (warn ? ' <span style="color:#dc2626">(要対処)</span>' : '') + '</div>';
+    }
+    document.getElementById('diagBody').innerHTML =
+      row('OneSignal App ID', d.onesignalAppId, d.onesignalAppId === '(未設定)') +
+      row('REST API Key', d.restKeySet ? '設定済' : '未設定', !d.restKeySet) +
+      row('通知送信先サイトURL', d.siteUrl, d.siteUrl === '(未設定)') +
+      row('締切自動通知トリガー', d.triggerCount + ' 件(毎日7時/19時)', d.triggerCount === 0) +
+      row('登録ユーザー', d.users + ' 人', d.users === 0) +
+      row('登録アイテム', d.items + ' 件', false) +
+      row('画像フォルダ', d.folderUrl, d.folderUrl === '(未取得)') +
+      (d.lastError ? '<div style="color:#dc2626">⚠ 最後のエラー: ' + esc(d.lastError) + '</div>' : '');
+  }).catch(function (e) {
+    document.getElementById('diagBody').innerHTML =
+      '<div style="color:#dc2626">診断に失敗: ' + esc(e.message) + '</div>';
+  });
+}
+
+function closeDiag() { document.getElementById('diagModal').classList.remove('show'); }
+
+function sendTestPush() {
+  api({ action: 'test_push' }).then(function (r) {
+    if (!r || !r.ok) throw new Error((r && r.error) || '送信できませんでした');
+    alert(r.sent
+      ? 'テスト通知を送信しました。\n通知許可済みの端末に数秒〜数十秒で届きます。\n(来ない場合は OneSignal のキーと通知許可を確認)'
+      : '送信処理はしましたが、OneSignal のキーが未設定の可能性があります。上の赤い項目を確認してください。');
+  }).catch(function (e) {
+    alert('エラー: ' + e.message);
+  });
+}
 
 document.getElementById('pinInput').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') doLogin();

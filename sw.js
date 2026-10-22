@@ -4,7 +4,7 @@
  * ========================================================================== */
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-var CACHE = 'gakkou-v1';
+var CACHE = 'gakkou-v2';
 var ASSETS = ['./', './index.html', './manifest.json', './icon-192.png',
               './icon-512.png', './apple-touch-icon.png'];
 
