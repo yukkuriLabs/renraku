@@ -623,16 +623,31 @@ function updateBell() {
   var btn = document.getElementById('bell');
   if (!OS) { btn.style.display = 'none'; return; }
   btn.style.display = '';
-  Promise.resolve(OS.Notifications.permission).then(function (p) {
-    if (p === 'granted') {
-      btn.textContent = '🔔 通知ON';
-      btn.classList.add('on');
-      btn.onclick = function () { alert('通知は有効です。締切の3日前・前日・当日に自動でお知らせします。'); };
-    } else {
-      btn.textContent = '🔔 通知を有効にする';
-      btn.classList.remove('on');
-    }
-  }).catch(function () {});
+
+  /* ネイティブの Notification.permission を優先(iPhone設定で許可してもSDK側が遅れることがある) */
+  var p = 'default';
+  try { if (typeof Notification !== 'undefined' && Notification.permission) p = Notification.permission; }
+  catch (e) { p = 'default'; }
+
+  if (p !== 'granted') {
+    Promise.resolve(OS.Notifications.permission).then(function (sp) {
+      applyBell_(sp === 'granted');
+    }).catch(function () { applyBell_(false); });
+  } else {
+    applyBell_(true);
+  }
+}
+
+function applyBell_(granted) {
+  var btn = document.getElementById('bell');
+  if (granted) {
+    btn.textContent = '🔔 通知ON';
+    btn.classList.add('on');
+    btn.onclick = function () { alert('通知は有効です。締切の3日前・前日・当日に自動でお知らせします。'); };
+  } else {
+    btn.textContent = '🔔 通知を有効にする';
+    btn.classList.remove('on');
+  }
 }
 
 /* =============================== 操作 ==================================== */
@@ -912,6 +927,12 @@ if ('serviceWorker' in navigator) {
 setInterval(function () {
   if (me && !document.getElementById('modal').classList.contains('show')) load();
 }, 45000);
+
+/* 通知許可の状態は許可ダイアログ後に遅れて変わるので、鈴の表示を定期更新する */
+setInterval(function () { if (OS) updateBell(); }, 3000);
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' && OS) updateBell();
+});
 
 document.addEventListener('visibilitychange', function () {
   if (me && document.visibilityState === 'visible' &&
