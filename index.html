@@ -150,6 +150,102 @@
   .viewer img { max-width: 100%; max-height: 100%; }
   .viewer .closeHint { position: fixed; top: 14px; right: 16px; color: #fff; opacity: .8;
     font-size: 13px; background: rgba(0,0,0,.4); padding: 6px 12px; border-radius: 999px; }
+
+  /* ===== ヘッダーボタン(☰・🔍) ===== */
+  header h1 { padding-left: 94px; font-size: 17px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .menuBtn, .searchBtn { position: absolute; top: 11px; width: 34px; height: 34px;
+    border: none; border-radius: 9px; background: rgba(255,255,255,.22); color: #fff;
+    font-size: 16px; cursor: pointer; z-index: 2; }
+  .menuBtn { left: 10px; }
+  .searchBtn { left: 50px; }
+
+  /* ===== 検索行 ===== */
+  .searchRow { display: none; padding: 10px 12px 0; }
+  .searchRow.show { display: block; }
+  .searchRow input { width: 100%; padding: 10px 12px; font-size: 15px;
+    border: 1px solid #d5dbe6; border-radius: 10px; }
+
+  /* ===== ハンバーガーメニュー ===== */
+  .drawer { position: fixed; inset: 0; z-index: 55; display: none; }
+  .drawer.show { display: block; }
+  .drawerBg { position: absolute; inset: 0; background: rgba(15,23,42,.5); }
+  .drawerPanel { position: absolute; left: 0; top: 0; bottom: 0; width: min(86vw, 330px);
+    background: #fff; overflow-y: auto; padding: 16px 14px 34px;
+    animation: drawerIn .18s ease-out; box-shadow: 4px 0 18px rgba(0,0,0,.22); }
+  @keyframes drawerIn { from { transform: translateX(-100%); } to { transform: none; } }
+  .drawerHead { display: flex; align-items: center; gap: 10px; }
+  .drawerHead img { width: 40px; height: 40px; border-radius: 11px; }
+  .drawerHead b { font-size: 15.5px; display: block; color: #1c2430; }
+  .drawerHead span { font-size: 12px; color: #8b96a8; }
+  .drawerHead .x { margin-left: auto; width: 32px; height: 32px; border: none;
+    background: #f1f5f9; border-radius: 9px; font-size: 19px; cursor: pointer; color: #33445c; }
+  .dsec { margin-top: 6px; }
+  .dsec h3 { font-size: 12.5px; color: #8b96a8; margin: 16px 0 7px; letter-spacing: .5px; }
+  .seg { display: flex; gap: 6px; margin-bottom: 4px; }
+  .seg button { flex: 1; border: 1px solid #d5dbe6; background: #fff; color: #33445c;
+    border-radius: 9px; padding: 9px 5px; font-size: 13.5px; cursor: pointer; }
+  .seg button.on { background: #2f6fed; border-color: #2f6fed; color: #fff; font-weight: 700; }
+  .drow { display: block; width: 100%; text-align: left; border: 1px solid #e2e8f0;
+    background: #fff; border-radius: 10px; padding: 12px 12px; font-size: 14.5px;
+    margin-bottom: 8px; cursor: pointer; color: #1c2430; }
+  .drow:active { transform: scale(.99); }
+  .drow.on { background: #eef4ff; border-color: #2f6fed; font-weight: 700; color: #1e46b5; }
+
+  /* ===== 一覧の表示スタイル ===== */
+  .list.compact .card { padding: 8px 10px; margin-bottom: 6px; border-left-width: 4px; }
+  .list.compact .title { font-size: 14.5px; }
+  .list.compact .detail { font-size: 13px; margin-top: 3px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .list.compact .meta { display: none; }
+  .list.compact .due { margin-top: 5px; font-size: 12.5px; padding: 3px 7px; }
+  .list.compact .imgWrap { margin-top: 6px; }
+  .list.compact .imgWrap img { max-height: 92px; object-fit: cover; }
+  .list.compact .imgHint { display: none; }
+  .list.compact .acts { margin-top: 7px; }
+  .list.compact .btn { padding: 6px 6px; font-size: 13px; }
+  .list.big .title { font-size: 20px; }
+  .list.big .detail { font-size: 16.5px; }
+  .list.big .due { font-size: 15.5px; }
+  .list.big .meta { font-size: 14px; }
+  .list.big .btn { padding: 11px 10px; font-size: 15.5px; }
+  .list.big .badge { font-size: 13px; }
+
+  /* ===== コントロールパネル ===== */
+  .cpRow { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 9px 11px; margin-bottom: 8px; font-size: 14.5px; }
+
+  /* ===== ダークモード ===== */
+  body.dark { background: #0f172a; color: #e2e8f0; }
+  body.dark .card { background: #182334; box-shadow: none; border: 1px solid #24324a; }
+  body.dark .card.over { background: #2a1620; }
+  body.dark .title { color: #f1f5f9; }
+  body.dark .detail { color: #a9b7c9; }
+  body.dark .badge, body.dark .due { background: #24324a; color: #cbd5e1; }
+  body.dark .due.none { background: transparent; color: #8b96a8; }
+  body.dark .chip { background: #182334; border-color: #31415f; color: #cbd5e1; }
+  body.dark .stat { background: rgba(255,255,255,.09); }
+  body.dark .btn { background: #1e2b41; border-color: #31415f; color: #dbe4f0; }
+  body.dark .btn.blue, body.dark .btn.primary { color: #fff; }
+  body.dark .sheet, body.dark .drawerPanel { background: #141f33; }
+  body.dark .drawerHead b { color: #f1f5f9; }
+  body.dark .drawerHead .x { background: #22314c; color: #e2e8f0; }
+  body.dark .drow { background: #182334; border-color: #2a3a57; color: #e2e8f0; }
+  body.dark .drow.on { background: #1d2f52; color: #cfe0ff; }
+  body.dark .seg button { background: #182334; border-color: #31415f; color: #cbd5e1; }
+  body.dark .seg button.on { background: #2f6fed; border-color: #2f6fed; color: #fff; }
+  body.dark .cpRow { background: #182334; border-color: #2a3a57; }
+  body.dark input, body.dark select, body.dark textarea {
+    background: #101a2c; border-color: #31415f; color: #e2e8f0; }
+  body.dark label { color: #9fb0c6; }
+  body.dark .hint, body.dark .meta { color: #8b9db4; }
+  body.dark .imgWrap img { border-color: #2a3a57; background: #101a2c; }
+  body.dark .banner.red { background: #3a1420; color: #fca5a5; border-color: #7f1d1d; }
+  body.dark .banner.orange { background: #3a2410; color: #fdba74; border-color: #92400e; }
+  body.dark .byline { background: #1d2f52; color: #cfe0ff; }
+  body.dark .empty { color: #7f8ea3; }
+  body.dark .searchRow input { background: #101a2c; border-color: #31415f; color: #e2e8f0; }
 </style>
 </head>
 <body>
@@ -196,6 +292,8 @@
 <div class="wrap" id="app" style="display:none">
   <header>
     <h1>学校プリント・連絡</h1>
+    <button class="menuBtn" onclick="openDrawer()" aria-label="メニュー">☰</button>
+    <button class="searchBtn" onclick="toggleSearch()" aria-label="検索">🔍</button>
     <button class="bell" id="bell" style="display:none" onclick="askPush()">🔔 通知を有効にする</button>
     <button class="who" id="whoBtn" onclick="logout()">— さん ・ 切り替え</button>
     <div class="stats">
@@ -215,6 +313,10 @@
     <div class="chip" data-f="メモ">メモ</div>
     <div class="chip" data-f="done">完了済み</div>
     <div class="chip" data-f="__diag">🩺診断</div>
+  </div>
+
+  <div class="searchRow" id="searchRow">
+    <input type="text" id="qInput" placeholder="🔍 タイトル・詳細から検索" oninput="render()">
   </div>
 
   <div class="list" id="list"><div class="loading">読み込み中…</div></div>
@@ -277,6 +379,105 @@
   </div>
 </div>
 
+<!-- ================= ハンバーガーメニュー ================= -->
+<div class="drawer" id="drawer">
+  <div class="drawerBg" onclick="closeDrawer()"></div>
+  <div class="drawerPanel">
+    <div class="drawerHead">
+      <img src="icon-192.png" alt="">
+      <div><b>学校プリント・連絡</b><span id="drawerWho"></span></div>
+      <button class="x" onclick="closeDrawer()">×</button>
+    </div>
+
+    <div class="dsec">
+      <h3>📋 表示スタイル</h3>
+      <div class="seg" id="segStyle">
+        <button data-v="card" onclick="setStyle('card')">カード</button>
+        <button data-v="compact" onclick="setStyle('compact')">コンパクト</button>
+        <button data-v="big" onclick="setStyle('big')">大きく</button>
+      </div>
+      <h3>🔀 並び替え</h3>
+      <div class="seg" id="segSort">
+        <button data-v="due" onclick="setSort('due')">締切が近い順</button>
+        <button data-v="new" onclick="setSort('new')">新着順</button>
+      </div>
+      <h3>⚙️ この端末の表示設定</h3>
+      <div class="seg" id="segMisc">
+        <button id="darkBtn" onclick="toggleDark()">🌙 ダーク</button>
+        <button id="autoBtn" onclick="toggleAuto()">🔄 自動更新</button>
+      </div>
+      <button class="drow" onclick="toggleSearchClose()">🔍 検索する</button>
+    </div>
+
+    <div class="dsec">
+      <h3>👤 <span id="drawerName">ユーザー</span>さんの設定(全端末で共有)</h3>
+      <button class="drow" onclick="saveUserPrefs()">💾 いまの表示設定をこのユーザーで保存</button>
+      <button class="drow" onclick="loadUserPrefs()">📥 保存済みの設定を読み込む</button>
+    </div>
+
+    <div class="dsec">
+      <h3>🛠 ツール</h3>
+      <button class="drow" onclick="openCp()">🛠 コントロールパネル(一斉設定・管理)</button>
+      <button class="drow" onclick="closeDrawer();askPush()">🔔 通知を確認する</button>
+      <button class="drow" onclick="closeDrawer();runDiag()">🩺 診断 / ヘルプ</button>
+      <button class="drow" onclick="backupJSON()">📄 バックアップを保存(JSON)</button>
+      <button class="drow" id="sheetRowD" style="display:none" onclick="openSheetUrl()">📊 スプレッドシートを開く</button>
+      <button class="drow" onclick="closeDrawer();logout()">🔁 ユーザー切替(ログアウト)</button>
+    </div>
+
+    <p class="hint">左上の ☰ からいつでも開けます</p>
+  </div>
+</div>
+
+<!-- ================= コントロールパネル ================= -->
+<div class="modal" id="cpModal" onclick="if(event.target===this)closeCp()">
+  <div class="sheet">
+    <h2>🛠 コントロールパネル(一斉設定)</h2>
+
+    <div id="cpLock">
+      <label>PIN を再入力(確認のため)</label>
+      <input type="password" inputmode="numeric" maxlength="4" id="cpPin"
+             class="pinInput" placeholder="PIN" autocomplete="off">
+      <div class="acts2" style="margin-top:6px">
+        <button class="btn" onclick="closeCp()">キャンセル</button>
+        <button class="btn primary" id="cpUnlockBtn" onclick="unlockCp()">開く</button>
+      </div>
+      <div id="cpErr" style="color:#dc2626;font-size:13px;margin-top:8px"></div>
+    </div>
+
+    <div id="cpBody" style="display:none">
+      <label>📡 一斉通知(家族全員の端末に今すぐ送る)</label>
+      <input type="text" id="bcTitle" maxlength="40" placeholder="件名(空欄なら「一斉のお知らせ」)">
+      <textarea id="bcBody" maxlength="300" placeholder="本文(例) 明日の遠足は8時に集合です"></textarea>
+      <div class="acts2" style="margin-top:8px">
+        <button class="btn primary" id="bcBtn" onclick="broadcastAll()">📡 家族全員に送信</button>
+        <button class="btn blue" onclick="sendTestPush()">テスト通知</button>
+      </div>
+      <div class="hint" id="bcResult" style="white-space:pre-wrap"></div>
+
+      <label>⏰ 締切の自動リマインド</label>
+      <button class="drow" id="remindBtn" onclick="toggleRemind()"></button>
+      <div class="hint">OFFにすると締切の3日前・前日・当日の通知が止まります(新着通知は残ります)</div>
+
+      <label>👥 ユーザー管理</label>
+      <div id="cpUsers"></div>
+
+      <label>🧹 一括操作</label>
+      <button class="drow" onclick="purgeDone()">✅ 完了済みをすべて削除</button>
+      <button class="drow" onclick="uncheckDone()">↩️ 完了をすべて「未完了」に戻す</button>
+
+      <label>📄 データ</label>
+      <button class="drow" onclick="backupJSON()">💾 バックアップを保存(JSON)</button>
+      <button class="drow" id="sheetRow" style="display:none" onclick="openSheetUrl()">📊 スプレッドシートを開く(元データ)</button>
+      <button class="drow" onclick="closeCp();runDiag()">🩺 診断を見る</button>
+
+      <div class="acts2">
+        <button class="btn" onclick="closeCp()">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ================= 画像ビューア ================= -->
 <div class="viewer" id="viewer" onclick="closeViewer()">
   <span class="closeHint">タップで閉じる</span>
@@ -291,6 +492,13 @@
 var API_BASE = 'https://script.google.com/macros/s/AKfycbxpskMBipMu04iCVIdWE4rTBRB6xvNPjBQ7rPenWRJeEj6i_nCXUYmdiEYpzFz9TZVnbw/exec';
 
 var DATA = [];
+var lastDataKey = '';
+var CONFIG = {};                 // サーバー設定(list時に更新される)
+var prefs = { style: 'card', sort: 'due', dark: false, auto: true };  // 端末ごとの表示設定
+try {
+  var pv = JSON.parse(localStorage.getItem('gakkou_prefs') || 'null');
+  if (pv) Object.assign(prefs, pv);
+} catch (e) {}
 var me = null;                 // ログイン中のユーザー {id, name}
 var filter = 'all';
 var editingId = null;
@@ -316,15 +524,25 @@ function api(params) {
     }).join('&');
 
     var timer = setTimeout(function () { fin(new Error('タイムアウトしました')); }, 25000);
+    var done = false;
     function fin(err, val) {
+      if (done) return;
+      done = true;
       clearTimeout(timer);
       if (s.parentNode) s.parentNode.removeChild(s);
       try { delete window[cb]; } catch (e) { window[cb] = undefined; }
       if (err) reject(err); else resolve(val);
     }
+    /* JSONP(scriptタグ)がブロックされた環境向け: fetchで直接通信を試す */
+    function fetchFallback() {
+      fetch(API_BASE + '?' + qs, { redirect: 'follow' })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (j) { fin(null, j); })
+        .catch(function (e) { fin(new Error('通信エラー(script.google.com に届かない): ' + e.message)); });
+    }
     window[cb] = function (data) { fin(null, data); };
     s.src = API_BASE + '?' + qs + '&callback=' + cb + '&_=' + Date.now();
-    s.onerror = function () { fin(new Error('通信エラー(ネットワーク)')); };
+    s.onerror = fetchFallback;
     document.head.appendChild(s);
   });
 }
@@ -343,6 +561,15 @@ function showApp() {
   document.getElementById('fab').style.display = '';
   document.getElementById('whoBtn').textContent = me.name + ' さん ・ 切り替え';
   document.getElementById('byline').textContent = me.name + ' さん';
+  /* 前回のデータを即表示してから、背景で最新を取る(待ち時間が体感しない) */
+  try {
+    var cached = JSON.parse(localStorage.getItem('gakkou_data') || 'null');
+    if (cached && cached.length) {
+      DATA = cached;
+      lastDataKey = JSON.stringify(DATA);
+      render();
+    }
+  } catch (e) {}
   load();
 }
 
@@ -420,6 +647,7 @@ function createUser() {
 function setMe(user) {
   me = user;
   try { localStorage.setItem('gakkou_me', JSON.stringify(user)); } catch (e) {}
+  applyUserSettings(user.settings);   // このユーザーの保存済み表示設定を適用
   showApp();
 }
 
@@ -487,25 +715,49 @@ function render() {
     b.textContent = '';
   }
 
-  var items = DATA.filter(function (x) {
-    if (filter === 'done') return x.done;
-    if (x.done) return false;
-    if (filter === 'all') return true;
-    return x.type === filter;
-  });
+  var q = '';
+  try { q = (document.getElementById('qInput').value || '').trim(); } catch (e) {}
+  var items;
+  if (q) {
+    /* 検索中は種別フィルターを無視して全体から探す(完了済みタブ中は完了済みから) */
+    var ql = q.toLowerCase();
+    items = DATA.filter(function (x) {
+      if (filter === 'done') return x.done;
+      if (x.done) return false;
+      return ((x.title || '') + '\n' + (x.detail || '')).toLowerCase().indexOf(ql) >= 0;
+    });
+  } else {
+    items = DATA.filter(function (x) {
+      if (filter === 'done') return x.done;
+      if (x.done) return false;
+      if (filter === 'all') return true;
+      return x.type === filter;
+    });
+  }
 
-  items.sort(function (a, b2) {
-    if (a.done !== b2.done) return a.done ? 1 : -1;
-    var da = dayDiff(a.due), db = dayDiff(b2.due);
-    if (da === null && db === null) return (b2.created || '').localeCompare(a.created || '');
-    if (da === null) return 1;
-    if (db === null) return -1;
-    return da - db;
-  });
+  if (prefs.sort === 'new') {
+    items.sort(function (a, b2) {
+      if (a.done !== b2.done) return a.done ? 1 : -1;
+      return (b2.created || '').localeCompare(a.created || '');
+    });
+  } else {
+    items.sort(function (a, b2) {
+      if (a.done !== b2.done) return a.done ? 1 : -1;
+      var da = dayDiff(a.due), db = dayDiff(b2.due);
+      if (da === null && db === null) return (b2.created || '').localeCompare(a.created || '');
+      if (da === null) return 1;
+      if (db === null) return -1;
+      return da - db;
+    });
+  }
 
   var el = document.getElementById('list');
+  el.className = 'list' + (prefs.style === 'compact' ? ' compact'
+    : prefs.style === 'big' ? ' big' : '');
   if (!items.length) {
-    el.innerHTML = '<div class="empty">表示する項目はありません。<br>右下の <b>＋</b> から追加できます。</div>';
+    el.innerHTML = q
+      ? '<div class="empty">「' + esc(q) + '」に一致する項目はありません。</div>'
+      : '<div class="empty">表示する項目はありません。<br>右下の <b>＋</b> から追加できます。</div>';
     return;
   }
 
@@ -518,7 +770,7 @@ function render() {
     if (it.done) cls += ' done';
 
     var imgHtml = it.image
-      ? '<div class="imgWrap"><img src="' + thumb_(it.image, 800) + '" loading="lazy" '
+      ? '<div class="imgWrap"><img src="' + thumb_(it.image, 400) + '" loading="lazy" '
         + 'onclick="openViewer(\'' + esc(it.image) + '\')">'
         + '<span class="imgHint">タップで拡大</span></div>'
       : '';
@@ -558,13 +810,19 @@ function load() {
   api({ action: 'list' }).then(function (res) {
     if (!res || !res.ok) throw new Error((res && res.error) || 'サーバーエラー');
     DATA = res.items || [];
+    CONFIG = res.config || CONFIG;
+    try { localStorage.setItem('gakkou_data', JSON.stringify(DATA)); } catch (e) {}
     if (!pushReady && res.config && res.config.onesignalAppId &&
         res.config.onesignalAppId.indexOf('貼り付け') < 0) {
       pushReady = true;
       setupPush(res.config.onesignalAppId);
     }
-    render();
+    /* データが変わっていなければ描画し直さない(スクロール位置が飛ばない) */
+    var key = JSON.stringify(DATA);
+    if (key !== lastDataKey) { lastDataKey = key; render(); }
   }).catch(function (e) {
+    /* 通信失敗でもキャッシュ済みのデータがあれば表示はそのまま維持 */
+    if (DATA.length) { console.warn('load失敗(キャッシュ表示のまま)', e); return; }
     document.getElementById('list').innerHTML =
       '<div class="empty">読み込みに失敗しました。<br>' + esc(e.message) +
       '<br><br><button class="btn blue" style="max-width:200px;margin:0 auto" onclick="load()">再試行</button></div>';
@@ -737,7 +995,7 @@ function openForm(id) {
 
   if (it && it.image) {
     document.getElementById('imgPrev').style.display = '';
-    document.getElementById('imgPrevImg').src = thumb_(it.image, 800);
+    document.getElementById('imgPrevImg').src = thumb_(it.image, 400);
   } else {
     document.getElementById('imgPrev').style.display = 'none';
     document.getElementById('imgPrevImg').src = '';
@@ -904,6 +1162,222 @@ document.getElementById('pinInput').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') doLogin();
 });
 
+/* ============================ 表示・メニュー =============================== */
+function applyPrefs() {
+  document.body.classList.toggle('dark', !!prefs.dark);
+  var el = document.getElementById('list');
+  el.className = 'list' + (prefs.style === 'compact' ? ' compact'
+    : prefs.style === 'big' ? ' big' : '');
+  updateDrawer();
+}
+function savePrefs() {
+  try { localStorage.setItem('gakkou_prefs', JSON.stringify(prefs)); } catch (e) {}
+}
+
+function openDrawer() {
+  document.getElementById('drawerWho').textContent = me ? me.name + ' さん' : '';
+  document.getElementById('drawerName').textContent = me ? me.name : 'ユーザー';
+  updateDrawer();
+  document.getElementById('drawer').classList.add('show');
+}
+function closeDrawer() { document.getElementById('drawer').classList.remove('show'); }
+
+function updateDrawer() {
+  function seg(id, v) {
+    document.querySelectorAll('#' + id + ' button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-v') === v);
+    });
+  }
+  seg('segStyle', prefs.style);
+  seg('segSort', prefs.sort);
+  var d = document.getElementById('darkBtn');
+  if (d) { d.classList.toggle('on', !!prefs.dark); d.textContent = prefs.dark ? '🌙 ダーク: ON' : '🌙 ダーク: OFF'; }
+  var a = document.getElementById('autoBtn');
+  if (a) { a.classList.toggle('on', !!prefs.auto); a.textContent = prefs.auto ? '🔄 自動更新: ON' : '🔄 自動更新: OFF'; }
+}
+
+function setStyle(v) { prefs.style = v; savePrefs(); applyPrefs(); render(); }
+function setSort(v) { prefs.sort = v; savePrefs(); updateDrawer(); render(); }
+function toggleDark() { prefs.dark = !prefs.dark; savePrefs(); applyPrefs(); }
+function toggleAuto() { prefs.auto = !prefs.auto; savePrefs(); updateDrawer(); }
+
+function toggleSearch() {
+  var r = document.getElementById('searchRow');
+  var show = !r.classList.contains('show');
+  r.classList.toggle('show', show);
+  if (show) document.getElementById('qInput').focus();
+  else { document.getElementById('qInput').value = ''; render(); }
+}
+function toggleSearchClose() { closeDrawer(); toggleSearch(); }
+
+/* ユーザーごとの設定(サーバーの users シートに保存・全端末で共有) */
+function applyUserSettings(s) {
+  if (!s) return;
+  try {
+    var o = JSON.parse(s);
+    ['style', 'sort', 'dark', 'auto'].forEach(function (k) {
+      if (o[k] !== undefined) prefs[k] = o[k];
+    });
+    savePrefs();
+    applyPrefs();
+  } catch (e) {}
+}
+function saveUserPrefs() {
+  if (!me) return;
+  var s = JSON.stringify(prefs);
+  api({ action: 'user_save_settings', id: me.id, settings: s }).then(function () {
+    me.settings = s;
+    try { localStorage.setItem('gakkou_me', JSON.stringify(me)); } catch (e) {}
+    alert('「' + me.name + '」さんの設定として保存しました。\nどの端末で開いても同じ表示になります。');
+  }).catch(function (e) { alert('保存できませんでした: ' + e.message); });
+}
+function loadUserPrefs() {
+  if (!me || !me.settings) { alert('まだ保存済みの設定がありません。'); return; }
+  applyUserSettings(me.settings);
+  render();
+  alert('保存済みの設定を読み込みました。');
+}
+
+function backupJSON() {
+  try {
+    var payload = { app: '学校連絡', exported: new Date().toISOString(), items: DATA };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '学校連絡バックアップ-' + new Date().toISOString().substring(0, 10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); if (a.parentNode) a.parentNode.removeChild(a); }, 2000);
+  } catch (e) { alert('バックアップできませんでした: ' + e.message); }
+}
+function openSheetUrl() {
+  if (CONFIG && CONFIG.sheetUrl) window.open(CONFIG.sheetUrl, '_blank');
+  else alert('スプレッドシートのURLを取得できませんでした');
+}
+
+/* ========================== コントロールパネル ============================ */
+function openCp() {
+  closeDrawer();
+  document.getElementById('cpLock').style.display = '';
+  document.getElementById('cpBody').style.display = 'none';
+  document.getElementById('cpPin').value = '';
+  document.getElementById('cpErr').textContent = '';
+  document.getElementById('bcResult').textContent = '';
+  document.getElementById('cpModal').classList.add('show');
+  setTimeout(function () { document.getElementById('cpPin').focus(); }, 80);
+}
+function closeCp() { document.getElementById('cpModal').classList.remove('show'); }
+
+function unlockCp() {
+  var btn = document.getElementById('cpUnlockBtn');
+  btn.disabled = true; btn.textContent = '確認中…';
+  api({ action: 'user_login', id: me.id, pin: document.getElementById('cpPin').value })
+    .then(function (r) {
+      btn.disabled = false; btn.textContent = '開く';
+      if (!r || !r.ok) throw new Error((r && r.error) || 'PINが違います');
+      document.getElementById('cpLock').style.display = 'none';
+      document.getElementById('cpBody').style.display = '';
+      fillCp();
+    }).catch(function (e) {
+      btn.disabled = false; btn.textContent = '開く';
+      document.getElementById('cpErr').textContent = e.message;
+    });
+}
+
+function fillCp() {
+  var rb = document.getElementById('remindBtn');
+  rb.textContent = CONFIG.remindEnabled
+    ? '⏰ 自動リマインド: ON(毎日7時/19時)'
+    : '⏰ 自動リマインド: OFF(締切通知が止まっています)';
+  rb.classList.toggle('on', !!CONFIG.remindEnabled);
+  var sl = document.getElementById('sheetRow');
+  if (sl) sl.style.display = CONFIG.sheetUrl ? '' : 'none';
+  var sl2 = document.getElementById('sheetRowD');
+  if (sl2) sl2.style.display = CONFIG.sheetUrl ? '' : 'none';
+  fillCpUsers();
+}
+
+function fillCpUsers() {
+  api({ action: 'users' }).then(function (r) {
+    var list = (r && r.users) || [];
+    document.getElementById('cpUsers').innerHTML = list.map(function (u) {
+      return '<div class="cpRow"><b>' + esc(u.name) + '</b><span style="display:flex;gap:6px">'
+        + '<button class="btn blue" style="flex:none;padding:6px 10px;font-size:13px" onclick="resetPin(\''
+        + esc(u.id) + '\',\'' + esc(u.name) + '\')">PIN再設定</button>'
+        + (list.length > 1
+          ? '<button class="btn danger" style="flex:none;padding:6px 10px;font-size:13px" onclick="deleteUser(\''
+            + esc(u.id) + '\',\'' + esc(u.name) + '\')">削除</button>'
+          : '')
+        + '</span></div>';
+    }).join('') || '<div class="hint">まだユーザーがいません</div>';
+  }).catch(function (e) {
+    document.getElementById('cpUsers').innerHTML = '<div class="hint">取得失敗: ' + esc(e.message) + '</div>';
+  });
+}
+
+function resetPin(id, name) {
+  var pin = prompt(name + ' さんの新しい PIN 4桁を入力', '');
+  if (!/^[0-9]{4}$/.test(pin || '')) { alert('4桁の数字で入力してください'); return; }
+  api({ action: 'user_setpin', id: id, pin: pin }).then(function () {
+    alert(name + ' さんのPINを変更しました');
+  }).catch(function (e) { alert('エラー: ' + e.message); });
+}
+
+function deleteUser(id, name) {
+  if (!confirm(name + ' さんを削除しますか?\n(この人だけログインできなくなります)')) return;
+  api({ action: 'user_delete', id: id }).then(function () {
+    alert('削除しました');
+    fillCpUsers();
+    loadUsers();
+  }).catch(function (e) { alert('エラー: ' + e.message); });
+}
+
+function toggleRemind() {
+  var on = !CONFIG.remindEnabled;
+  api({ action: 'set_option', key: 'remind_enabled', value: on ? '1' : '0' })
+    .then(function (r) {
+      CONFIG = (r && r.config) || CONFIG;
+      fillCp();
+    }).catch(function (e) { alert('エラー: ' + e.message); });
+}
+
+function broadcastAll() {
+  var t = document.getElementById('bcTitle').value.trim();
+  var b = document.getElementById('bcBody').value.trim();
+  if (!b) { alert('本文を入力してください'); document.getElementById('bcBody').focus(); return; }
+  if (!confirm('家族全員の端末に通知を送ります。よろしいですか?')) return;
+  var btn = document.getElementById('bcBtn');
+  btn.disabled = true; btn.textContent = '送信中…';
+  api({ action: 'broadcast', title: t || '一斉のお知らせ', body: b }).then(function (r) {
+    btn.disabled = false; btn.textContent = '📡 家族全員に送信';
+    if (!r || !r.ok) throw new Error((r && r.error) || '送信できませんでした');
+    document.getElementById('bcResult').textContent =
+      (r.sent ? '✅ 送信成功' : '⚠️ 要確認') + ' (HTTP ' + r.code + ') ' + (r.response || '');
+  }).catch(function (e) {
+    btn.disabled = false; btn.textContent = '📡 家族全員に送信';
+    document.getElementById('bcResult').textContent = '❌ ' + e.message;
+  });
+}
+
+function purgeDone() {
+  if (!confirm('完了済みの項目をすべて削除しますか?\n(画像も一緒に消えます)')) return;
+  api({ action: 'purge_done' }).then(function (r) {
+    alert((r && r.removed != null ? r.removed : 0) + ' 件削除しました');
+    load();
+  }).catch(function (e) { alert('エラー: ' + e.message); });
+}
+function uncheckDone() {
+  if (!confirm('完了済みの項目をすべて「未完了」に戻しますか?')) return;
+  api({ action: 'uncheck_done' }).then(function (r) {
+    alert((r && r.updated != null ? r.updated : 0) + ' 件戻しました');
+    load();
+  }).catch(function (e) { alert('エラー: ' + e.message); });
+}
+
+document.getElementById('cpPin').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') unlockCp();
+});
+
 /* =============================== 起動 ==================================== */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
@@ -914,10 +1388,12 @@ if ('serviceWorker' in navigator) {
 }
 
 (function init() {
+  applyPrefs();
   var saved = null;
   try { saved = JSON.parse(localStorage.getItem('gakkou_me') || 'null'); } catch (e) {}
   if (saved && saved.name) {
     me = saved;
+    applyUserSettings(saved.settings);
     showApp();
   } else {
     showLogin();
@@ -925,7 +1401,9 @@ if ('serviceWorker' in navigator) {
 })();
 
 setInterval(function () {
-  if (me && !document.getElementById('modal').classList.contains('show')) load();
+  /* 表示中のときだけ自動更新(バックグラウンドで通信しない) */
+  if (me && prefs.auto && document.visibilityState === 'visible' &&
+      !document.getElementById('modal').classList.contains('show')) load();
 }, 45000);
 
 /* 通知許可の状態は許可ダイアログ後に遅れて変わるので、鈴の表示を定期更新する */
