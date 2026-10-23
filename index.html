@@ -216,6 +216,27 @@
     background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
     padding: 9px 11px; margin-bottom: 8px; font-size: 14.5px; }
 
+  /* ===== 定期刊行物(だより)ビュー ===== */
+  .pGroup { margin-bottom: 14px; }
+  .pGroupT { font-size: 15px; font-weight: 700; color: #1e46b5; background: #eef4ff;
+    border-radius: 10px; padding: 9px 12px; display: flex; justify-content: space-between; }
+  .pGroupT span { font-size: 12.5px; color: #6b7a90; font-weight: 600; align-self: center; }
+  .pRow { display: flex; align-items: center; gap: 10px; background: #fff;
+    border: 1px solid #e5eaf2; border-radius: 10px; padding: 10px 12px;
+    margin-top: 7px; cursor: pointer; }
+  .pRow:active { transform: scale(.99); }
+  .pMain { flex: 1; min-width: 0; }
+  .pMain b { font-size: 14.5px; color: #1c2430; }
+  .pSub { font-size: 13px; color: #6b7a90; margin-top: 2px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .pImg { font-size: 15px; }
+  .pArrow { color: #94a3b8; font-size: 20px; }
+  body.dark .pGroupT { background: #1d2f52; color: #cfe0ff; }
+  body.dark .pGroupT span { color: #9fb0c6; }
+  body.dark .pRow { background: #182334; border-color: #2a3a57; }
+  body.dark .pMain b { color: #f1f5f9; }
+  body.dark .pSub { color: #8b9db4; }
+
   /* ===== ダークモード ===== */
   body.dark { background: #0f172a; color: #e2e8f0; }
   body.dark .card { background: #182334; box-shadow: none; border: 1px solid #24324a; }
@@ -312,6 +333,7 @@
     <div class="chip" data-f="締切">締切</div>
     <div class="chip" data-f="メモ">メモ</div>
     <div class="chip" data-f="done">完了済み</div>
+    <div class="chip" data-f="__period">📚 だより</div>
     <div class="chip" data-f="__diag">🩺診断</div>
   </div>
 
@@ -335,14 +357,17 @@
       <div class="btn" data-t="連絡">連絡</div>
       <div class="btn" data-t="締切">締切</div>
       <div class="btn" data-t="メモ">メモ</div>
+      <div class="btn" data-t="だより">📚 だより</div>
     </div>
 
     <label>タイトル <span style="color:#dc2626">*</span></label>
     <input type="text" id="fTitle" maxlength="100" placeholder="例) 修学旅行の同意書">
 
-    <label>締切日</label>
-    <input type="date" id="fDue">
-    <div class="hint">締切を入れると3日前・前日・当日に家族へ自動で通知されます</div>
+    <div id="dueRow">
+      <label>締切日</label>
+      <input type="date" id="fDue">
+      <div class="hint">締切を入れると3日前・前日・当日に家族へ自動で通知されます</div>
+    </div>
 
     <label>詳細・メモ</label>
     <textarea id="fDetail" maxlength="1000" placeholder="例) 9/25(金)までに記入して持っていく"></textarea>
@@ -416,6 +441,11 @@
     </div>
 
     <div class="dsec">
+      <h3>📚 定期刊行物</h3>
+      <button class="drow" onclick="openPeriodicals()">📚 学年通信・だよりを見る</button>
+    </div>
+
+    <div class="dsec">
       <h3>🛠 ツール</h3>
       <button class="drow" onclick="openCp()">🛠 コントロールパネル(一斉設定・管理)</button>
       <button class="drow" onclick="closeDrawer();askPush()">🔔 通知を確認する</button>
@@ -474,6 +504,40 @@
       <div class="acts2">
         <button class="btn" onclick="closeCp()">閉じる</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 定期刊行物(だより) ================= -->
+<div class="modal" id="pModal" onclick="if(event.target===this)closePeriodicals()">
+  <div class="sheet">
+    <h2>📚 学年通信・だより</h2>
+    <div class="hint" style="margin:-6px 0 10px">
+      タイトルごとにまとまっています。登録時はタイトルを「学年通信」などに固定して、
+      号数(10月号など)は詳細に書くと綺麗に揃います
+    </div>
+    <div id="pBody"></div>
+    <div class="acts2">
+      <button class="btn" onclick="closePeriodicals()">閉じる</button>
+      <button class="btn primary" onclick="closePeriodicals();openForm(null,'だより')">＋ だよりを登録</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= だより詳細 ================= -->
+<div class="modal" id="pDetail" onclick="if(event.target===this)closePeriodical()">
+  <div class="sheet">
+    <div id="pdTitle" style="font-size:18px;font-weight:700;word-break:break-word"></div>
+    <div class="hint" id="pdMeta" style="margin-top:6px"></div>
+    <div class="detail" id="pdDetail" style="margin-top:10px"></div>
+    <div class="imgPrev" id="pdImgWrap" style="display:none">
+      <img id="pdImg" alt="">
+      <div class="hint" style="text-align:center">画像をタップで拡大</div>
+    </div>
+    <div class="acts2">
+      <button class="btn blue" id="pEdit">✏️ 編集</button>
+      <button class="btn danger" id="pDel">🗑 削除</button>
+      <button class="btn" onclick="closePeriodical()">閉じる</button>
     </div>
   </div>
 </div>
@@ -691,7 +755,7 @@ function dueInfo(item) {
 }
 
 function render() {
-  var open = DATA.filter(function (x) { return !x.done; });
+  var open = DATA.filter(function (x) { return !x.done && x.type !== 'だより'; });
   document.getElementById('stOpen').innerHTML = '<b>' + open.length + '</b>未完了';
 
   var over = open.filter(function (x) { var n = dayDiff(x.due); return n !== null && n < 0; });
@@ -717,17 +781,22 @@ function render() {
 
   var q = '';
   try { q = (document.getElementById('qInput').value || '').trim(); } catch (e) {}
-  var items;
+  var items, pHit = false;
   if (q) {
-    /* 検索中は種別フィルターを無視して全体から探す(完了済みタブ中は完了済みから) */
+    /* 検索中は種別フィルターを無視して全体から探す(だよりは📚専用ビュー側で表示) */
     var ql = q.toLowerCase();
     items = DATA.filter(function (x) {
+      if (x.type === 'だより') {
+        if (((x.title || '') + '\n' + (x.detail || '')).toLowerCase().indexOf(ql) >= 0) pHit = true;
+        return false;
+      }
       if (filter === 'done') return x.done;
       if (x.done) return false;
       return ((x.title || '') + '\n' + (x.detail || '')).toLowerCase().indexOf(ql) >= 0;
     });
   } else {
     items = DATA.filter(function (x) {
+      if (x.type === 'だより') return false;   // だよりは📚専用ビューに分離
       if (filter === 'done') return x.done;
       if (x.done) return false;
       if (filter === 'all') return true;
@@ -756,7 +825,8 @@ function render() {
     : prefs.style === 'big' ? ' big' : '');
   if (!items.length) {
     el.innerHTML = q
-      ? '<div class="empty">「' + esc(q) + '」に一致する項目はありません。</div>'
+      ? '<div class="empty">「' + esc(q) + '」に一致する項目はありません。'
+        + (pHit ? '<br><br>📚 学年通信・だよりは「📚 だより」タップで見られます' : '') + '</div>'
       : '<div class="empty">表示する項目はありません。<br>右下の <b>＋</b> から追加できます。</div>';
     return;
   }
@@ -927,6 +997,14 @@ function setType(t) {
   document.querySelectorAll('#typepick .btn').forEach(function (el) {
     el.classList.toggle('sel', el.getAttribute('data-t') === t);
   });
+  /* だより(定期刊行物)には締切・自動リマインド不要なので締切欄を隠す */
+  var dueRow = document.getElementById('dueRow');
+  if (t === 'だより') {
+    dueRow.style.display = 'none';
+    document.getElementById('fDue').value = '';
+  } else {
+    dueRow.style.display = '';
+  }
 }
 
 document.getElementById('typepick').addEventListener('click', function (e) {
@@ -981,7 +1059,7 @@ function detachImage() {
   if (editingId) detachExisting = true;
 }
 
-function openForm(id) {
+function openForm(id, presetType) {
   editingId = id || null;
   detachExisting = false;
   pendingImage = null;
@@ -1001,7 +1079,7 @@ function openForm(id) {
     document.getElementById('imgPrevImg').src = '';
   }
 
-  setType(it ? it.type : 'プリント');
+  setType(it ? it.type : (presetType || 'プリント'));
   document.getElementById('modal').classList.add('show');
   setTimeout(function () { if (!it) document.getElementById('fTitle').focus(); }, 80);
 }
@@ -1108,6 +1186,7 @@ document.getElementById('chips').addEventListener('click', function (e) {
   var c = e.target.closest('.chip'); if (!c) return;
   var f = c.getAttribute('data-f');
   if (f === '__diag') { runDiag(); return; }
+  if (f === '__period') { openPeriodicals(); return; }
   document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
   c.classList.add('on');
   filter = f;
@@ -1377,6 +1456,95 @@ function uncheckDone() {
 document.getElementById('cpPin').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') unlockCp();
 });
+
+/* ======================= 定期刊行物(だより)ビュー ========================= */
+function openPeriodicals() {
+  closeDrawer();
+  document.getElementById('pModal').classList.add('show');
+  renderPeriodicals();
+}
+function closePeriodicals() { document.getElementById('pModal').classList.remove('show'); }
+function closePeriodical() { document.getElementById('pDetail').classList.remove('show'); }
+
+function renderPeriodicals() {
+  var items = DATA.filter(function (x) { return x.type === 'だより'; });
+  var el = document.getElementById('pBody');
+  if (!items.length) {
+    el.innerHTML = '<div class="empty">まだだよりの登録がありません。<br><br>'
+      + '<button class="btn blue" style="max-width:240px;margin:0 auto;display:block" '
+      + 'onclick="closePeriodicals();openForm(null,\'だより\')">＋ だよりを登録する</button></div>';
+    return;
+  }
+
+  /* タイトルごとにグループ化(新しいものが上) */
+  var groups = {}, latest = {};
+  items.forEach(function (x) {
+    (groups[x.title] = groups[x.title] || []).push(x);
+    var c = x.created || '';
+    if (!latest[x.title] || c > latest[x.title]) latest[x.title] = c;
+  });
+  var titles = Object.keys(groups).sort(function (a, b) {
+    return (latest[b] || '').localeCompare(latest[a] || '');
+  });
+
+  el.innerHTML = titles.map(function (t) {
+    var list = groups[t].sort(function (a, b) {
+      return (b.created || '').localeCompare(a.created || '');
+    });
+    return '<div class="pGroup"><div class="pGroupT">📗 ' + esc(t)
+      + '<span>' + list.length + '件</span></div>'
+      + list.map(function (x) {
+          var line1 = (x.detail || '').split('\n')[0].trim();
+          var when = (x.created || '').substring(0, 16);
+          var main = line1 || when;
+          var sub = line1 ? when + (x.author ? ' ・ ' + x.author : '') : (x.author || '');
+          return '<div class="pRow" onclick="openPeriodical(\'' + esc(x.id) + '\')">'
+            + '<div class="pMain"><b>' + esc(main) + '</b>'
+            + (sub ? '<div class="pSub">' + esc(sub) + '</div>' : '') + '</div>'
+            + (x.image ? '<span class="pImg">📷</span>' : '')
+            + '<span class="pArrow">›</span></div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+}
+
+function openPeriodical(id) {
+  var x = DATA.filter(function (a) { return a.id === id; })[0];
+  if (!x) { alert('見つかりません(削除済み?)'); renderPeriodicals(); return; }
+
+  document.getElementById('pdTitle').textContent = x.title;
+  document.getElementById('pdMeta').textContent =
+    (x.author || '名無し') + ' が登録 ・ ' + (x.created || '');
+  var d = document.getElementById('pdDetail');
+  d.textContent = x.detail || '';
+  d.style.display = x.detail ? '' : 'none';
+
+  var im = document.getElementById('pdImgWrap');
+  if (x.image) {
+    im.style.display = '';
+    document.getElementById('pdImg').src = thumb_(x.image, 800);
+    document.getElementById('pdImg').onclick = function () { openViewer(x.image); };
+  } else {
+    im.style.display = 'none';
+    document.getElementById('pdImg').src = '';
+  }
+
+  document.getElementById('pEdit').onclick = function () {
+    closePeriodical(); closePeriodicals(); openForm(x.id);
+  };
+  document.getElementById('pDel').onclick = function () {
+    if (!confirm('このだよりを削除しますか?\n(画像も一緒に消えます)')) return;
+    api({ action: 'remove', id: x.id }).then(function () {
+      DATA = DATA.filter(function (a) { return a.id !== x.id; });
+      lastDataKey = '';
+      closePeriodical();
+      renderPeriodicals();
+      load();
+    }).catch(function (e) { alert('エラー: ' + e.message); });
+  };
+
+  document.getElementById('pDetail').classList.add('show');
+}
 
 /* =============================== 起動 ==================================== */
 if ('serviceWorker' in navigator) {
