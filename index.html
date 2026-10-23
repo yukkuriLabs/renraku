@@ -237,6 +237,38 @@
   body.dark .pMain b { color: #f1f5f9; }
   body.dark .pSub { color: #8b9db4; }
 
+  /* ===== テスト成績 ===== */
+  .sStat { display: flex; gap: 8px; }
+  .sStat div { flex: 1; background: #f5f3ff; border: 1px solid #e5e0ff; border-radius: 10px;
+    padding: 8px 4px; text-align: center; font-size: 12px; color: #5b4b9a; }
+  .sStat b { display: block; font-size: 18px; line-height: 1.3; color: #4f46e5; }
+  .sBarRow { display: flex; align-items: center; gap: 8px; margin-top: 7px; font-size: 13.5px; }
+  .sBarRow .nm { width: 54px; flex: none; font-weight: 700; color: #33445c; }
+  .sBarBg { flex: 1; background: #eef2f7; border-radius: 999px; height: 15px; overflow: hidden; }
+  .sBarFg { display: block; height: 100%; background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+  .sBarVal { width: 46px; text-align: right; font-weight: 700; color: #4f46e5; font-size: 12.5px; }
+  .sGroup { background: #fff; border: 1px solid #e5eaf2; border-radius: 12px;
+    padding: 10px 11px; margin-top: 9px; }
+  .sGroupT { font-size: 14.5px; font-weight: 700; color: #1c2430;
+    display: flex; justify-content: space-between; gap: 8px; }
+  .sGroupT span { font-weight: 500; font-size: 12.5px; color: #8b96a8; flex: none; }
+  .sChips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+  .sChip { display: flex; align-items: center; gap: 6px; background: #f5f3ff;
+    border: 1px solid #e5e0ff; border-radius: 9px; padding: 6px 8px;
+    font-size: 13.5px; color: #3f3f6b; cursor: pointer; }
+  .sChip b { color: #4f46e5; font-size: 15px; }
+  .sChip .x { border: none; background: #fee2e2; color: #dc2626; border-radius: 6px;
+    width: 22px; height: 22px; font-size: 12px; cursor: pointer; padding: 0; line-height: 1; }
+  body.dark .sStat div { background: #221a3d; border-color: #3b2f66; color: #c4b8f0; }
+  body.dark .sStat b { color: #a5b4fc; }
+  body.dark .sBarRow .nm { color: #cbd5e1; }
+  body.dark .sBarBg { background: #24324a; }
+  body.dark .sBarVal { color: #a5b4fc; }
+  body.dark .sGroup { background: #182334; border-color: #2a3a57; }
+  body.dark .sGroupT { color: #f1f5f9; }
+  body.dark .sChip { background: #221a3d; border-color: #3b2f66; color: #d7d0f5; }
+  body.dark .sChip b { color: #a5b4fc; }
+
   /* ===== 導入ガイド ===== */
   .gSteps { padding-left: 24px; margin: 10px 0 0; }
   .gSteps li { font-size: 15px; line-height: 1.7; margin-bottom: 11px; padding-left: 3px; }
@@ -340,6 +372,7 @@
     <div class="chip" data-f="締切">締切</div>
     <div class="chip" data-f="メモ">メモ</div>
     <div class="chip" data-f="done">完了済み</div>
+    <div class="chip" data-f="__score">📊 成績</div>
     <div class="chip" data-f="__period">📚 だより</div>
     <div class="chip" data-f="__diag">🩺診断</div>
   </div>
@@ -448,7 +481,8 @@
     </div>
 
     <div class="dsec">
-      <h3>📚 定期刊行物</h3>
+      <h3>📊 成績・📚 定期刊行物</h3>
+      <button class="drow" onclick="openScores()">📊 テスト成績を見る</button>
       <button class="drow" onclick="openPeriodicals()">📚 学年通信・だよりを見る</button>
     </div>
 
@@ -546,6 +580,62 @@
       <button class="btn blue" id="pEdit">✏️ 編集</button>
       <button class="btn danger" id="pDel">🗑 削除</button>
       <button class="btn" onclick="closePeriodical()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= テスト成績 ================= -->
+<div class="modal" id="sModal" onclick="if(event.target===this)closeScores()">
+  <div class="sheet">
+    <h2>📊 テスト成績</h2>
+    <div class="sStat" id="sStat"></div>
+    <div id="sBars" style="margin-top:12px"></div>
+    <div class="hint" style="margin-top:10px">チップをタップで編集、✕で削除</div>
+    <div id="sBody" style="margin-top:6px"></div>
+    <div class="acts2">
+      <button class="btn" onclick="closeScores()">閉じる</button>
+      <button class="btn primary" onclick="openScoreForm()">＋ 成績を登録</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 成績 登録・編集 ================= -->
+<div class="modal" id="sForm" onclick="if(event.target===this)closeScoreForm()">
+  <div class="sheet">
+    <h2 id="sFormTitle">テスト成績を登録</h2>
+
+    <label>誰の <span style="color:#dc2626">*</span></label>
+    <input type="text" id="sFName" maxlength="12" list="nameList" placeholder="例) みどり" autocomplete="off">
+    <datalist id="nameList"></datalist>
+
+    <label>テスト名 <span style="color:#dc2626">*</span></label>
+    <input type="text" id="sFTest" maxlength="40" placeholder="例) 3学期期末テスト">
+
+    <label>日付</label>
+    <input type="date" id="sFDate">
+
+    <label>教科 <span style="color:#dc2626">*</span></label>
+    <input type="text" id="sFSub" maxlength="10" list="subjectList" placeholder="例) 数学" autocomplete="off">
+    <datalist id="subjectList">
+      <option value="国語"><option value="数学"><option value="英語"><option value="理科">
+      <option value="社会"><option value="音楽"><option value="体育"><option value="美術">
+      <option value="技術・家庭"><option value="保健"><option value="その他">
+    </datalist>
+
+    <label>点数 / 満点 <span style="color:#dc2626">*</span></label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" inputmode="numeric" id="sFScore" placeholder="点数" style="flex:1">
+      <b style="font-size:17px">/</b>
+      <input type="text" inputmode="numeric" id="sFMax" placeholder="満点" value="100" style="flex:1">
+    </div>
+
+    <label>メモ(任意)</label>
+    <textarea id="sFMemo" maxlength="500" placeholder="例) 前回より12点アップ / 集中しなければ伸びる"></textarea>
+
+    <div class="acts2">
+      <button class="btn" onclick="closeScoreForm()">キャンセル</button>
+      <button class="btn blue" id="sSaveCont" onclick="saveScore(true)">保存して続けて</button>
+      <button class="btn primary" id="sSaveBtn" onclick="saveScore(false)">保存</button>
     </div>
   </div>
 </div>
@@ -1224,6 +1314,7 @@ document.getElementById('chips').addEventListener('click', function (e) {
   var f = c.getAttribute('data-f');
   if (f === '__diag') { runDiag(); return; }
   if (f === '__period') { openPeriodicals(); return; }
+  if (f === '__score') { openScores(); return; }
   document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
   c.classList.add('on');
   filter = f;
@@ -1651,6 +1742,263 @@ function shareUrl() {
   } else {
     copyUrl();
   }
+}
+
+/* ============================== テスト成績 ================================= */
+var SCDATA = [];
+var sName = null;          // 選択中の名前('__all' = ぜんぶ)
+var sEditingId = null;
+var lastScoreName = '';
+try { lastScoreName = localStorage.getItem('gakkou_score_name') || ''; } catch (e) {}
+
+function openScores() {
+  closeDrawer();
+  document.getElementById('sStat').innerHTML = '';
+  document.getElementById('sBars').innerHTML = '';
+  document.getElementById('sBody').innerHTML = '<div class="loading">読み込み中…</div>';
+  document.getElementById('sModal').classList.add('show');
+  reloadScores();
+}
+function closeScores() { document.getElementById('sModal').classList.remove('show'); }
+
+function reloadScores() {
+  return api({ action: 'scores' }).then(function (r) {
+    if (!r || !r.ok) throw new Error((r && r.error) || 'サーバーエラー');
+    SCDATA = r.scores || [];
+    renderScores();
+  }).catch(function (e) {
+    document.getElementById('sBody').innerHTML =
+      '<div class="empty">読み込みに失敗: ' + esc(e.message) + '<br><br>'
+      + '<button class="btn blue" style="max-width:200px;margin:0 auto;display:block" onclick="reloadScores()">再試行</button></div>';
+  });
+}
+
+function sSelectName(n) {
+  sName = n;
+  try { localStorage.setItem('gakkou_sname', n); } catch (e) {}
+  renderScores();
+}
+
+function fmtPct_(v) { return String(Math.round(v * 10) / 10); }
+function md_(ymd) {
+  if (!ymd) return '';
+  var p = String(ymd).split('-');
+  if (p.length < 3) return ymd;
+  return Number(p[1]) + '/' + Number(p[2]);
+}
+function normNum_(v) {
+  return String(v == null ? '' : v)
+    .replace(/[０-９．]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    .replace(/[^\d.\-]/g, '');
+}
+
+function renderScores() {
+  var el = document.getElementById('sBody');
+  var stat = document.getElementById('sStat');
+  var bars = document.getElementById('sBars');
+
+  if (!SCDATA.length) {
+    stat.innerHTML = ''; bars.innerHTML = '';
+    el.innerHTML = '<div class="empty">まだ成績の登録がありません。<br><br>'
+      + '<button class="btn blue" style="max-width:240px;margin:0 auto;display:block" onclick="openScoreForm()">'
+      + '＋ テスト成績を登録する</button></div>';
+    return;
+  }
+
+  /* 名前のタブ(複数の子がいる場合) */
+  var names = [];
+  SCDATA.forEach(function (s) { if (names.indexOf(s.name) < 0) names.push(s.name); });
+  try {
+    var saved = localStorage.getItem('gakkou_sname');
+    if (saved && (saved === '__all' || names.indexOf(saved) >= 0)) sName = saved;
+  } catch (e) {}
+  if (!sName || (sName !== '__all' && names.indexOf(sName) < 0)) {
+    sName = names[0] || '__all';
+  }
+
+  var tabs = '';
+  if (names.length > 1) {
+    var tabList = [{ v: '__all', t: 'ぜんぶ' }].concat(names.map(function (n) {
+      return { v: n, t: n };
+    }));
+    tabs = '<div class="chips" style="padding:0 0 6px">' + tabList.map(function (t) {
+      return '<div class="chip' + (sName === t.v ? ' on' : '') + '" onclick="sSelectName(\''
+        + esc(t.v) + '\')">' + esc(t.t) + '</div>';
+    }).join('') + '</div>';
+  }
+
+  var mine = (sName === '__all') ? SCDATA : SCDATA.filter(function (s) { return s.name === sName; });
+
+  /* サマリー: 平均・件数・最高 */
+  var sum = 0, best = 0;
+  mine.forEach(function (s) {
+    var pct = s.max > 0 ? s.score / s.max * 100 : 0;
+    sum += pct; if (pct > best) best = pct;
+  });
+  var avg = mine.length ? sum / mine.length : 0;
+  stat.innerHTML =
+    '<div><b>' + fmtPct_(avg) + '%</b>平均</div>'
+    + '<div><b>' + mine.length + '</b>件</div>'
+    + '<div><b>' + fmtPct_(best) + '%</b>最高</div>';
+
+  /* 教科別の平均バー */
+  var pref = ['国語', '数学', '英語', '理科', '社会'];
+  var bySub = {};
+  mine.forEach(function (s) {
+    if (!bySub[s.subject]) bySub[s.subject] = { sum: 0, n: 0 };
+    bySub[s.subject].sum += (s.max > 0 ? s.score / s.max * 100 : 0);
+    bySub[s.subject].n++;
+  });
+  var subs = Object.keys(bySub).sort(function (a, b) {
+    var ia = pref.indexOf(a); if (ia < 0) ia = 99;
+    var ib = pref.indexOf(b); if (ib < 0) ib = 99;
+    if (ia !== ib) return ia - ib;
+    return a.localeCompare(b);
+  });
+  bars.innerHTML = subs.map(function (sub) {
+    var pct = bySub[sub].sum / bySub[sub].n;
+    var w = Math.max(3, Math.min(100, pct));
+    return '<div class="sBarRow"><span class="nm">' + esc(sub) + '</span>'
+      + '<span class="sBarBg"><span class="sBarFg" style="width:' + w + '%"></span></span>'
+      + '<span class="sBarVal">' + fmtPct_(pct) + '%</span></div>';
+  }).join('');
+
+  /* テストごとにグループ化(新しい順) */
+  var groups = {};
+  mine.forEach(function (s) {
+    var key = s.name + '|' + s.test + '|' + (s.date || '');
+    if (!groups[key]) {
+      groups[key] = { name: s.name, test: s.test, date: s.date, items: [], created: '' };
+    }
+    groups[key].items.push(s);
+    if ((s.created || '') > groups[key].created) groups[key].created = s.created;
+  });
+  var glist = Object.keys(groups).map(function (k) { return groups[k]; });
+  glist.sort(function (a, b) {
+    var da = a.date || '', db = b.date || '';
+    if (da !== db) return db.localeCompare(da);
+    return (b.created || '').localeCompare(a.created || '');
+  });
+
+  el.innerHTML = tabs + glist.map(function (g) {
+    var title = (md_(g.date) ? md_(g.date) + ' ' : '') + g.test;
+    if (sName === '__all') title = g.name + ' ・ ' + title;
+    var items = g.items.slice().sort(function (a, b) {
+      return (b.created || '').localeCompare(a.created || '');
+    });
+    return '<div class="sGroup"><div class="sGroupT">' + esc(title)
+      + '<span>' + items.length + '教科</span></div><div class="sChips">'
+      + items.map(function (s) {
+          return '<span class="sChip" onclick="openScoreForm(\'' + esc(s.id) + '\')">'
+            + esc(s.subject) + ' <b>' + s.score + '</b>/' + s.max
+            + '<button class="x" onclick="event.stopPropagation();deleteScore(\''
+            + esc(s.id) + '\')" aria-label="削除">✕</button></span>';
+        }).join('')
+      + '</div></div>';
+  }).join('');
+}
+
+function deleteScore(id) {
+  if (!confirm('この成績を削除しますか?')) return;
+  api({ action: 'score_remove', id: id }).then(function () {
+    SCDATA = SCDATA.filter(function (s) { return s.id !== id; });
+    renderScores();
+  }).catch(function (e) { alert('エラー: ' + e.message); });
+}
+
+function todayLocal_() {
+  var d = new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2)
+    + '-' + ('0' + d.getDate()).slice(-2);
+}
+
+function openScoreForm(id) {
+  sEditingId = id || null;
+  var s = id ? SCDATA.filter(function (x) { return x.id === id; })[0] : null;
+  var defName = s ? s.name
+    : (sName && sName !== '__all') ? sName
+    : (lastScoreName || (me ? me.name : ''));
+
+  document.getElementById('sFormTitle').textContent = s ? '成績を編集' : 'テスト成績を登録';
+  document.getElementById('sFName').value = defName;
+  document.getElementById('sFTest').value = s ? s.test : '';
+  document.getElementById('sFDate').value = s ? (s.date || todayLocal_()) : todayLocal_();
+  document.getElementById('sFSub').value = s ? s.subject : '';
+  document.getElementById('sFScore').value = s ? s.score : '';
+  document.getElementById('sFMax').value = s ? s.max : 100;
+  document.getElementById('sFMemo').value = s ? (s.memo || '') : '';
+  document.getElementById('sSaveCont').style.display = s ? 'none' : '';
+  document.getElementById('sSaveBtn').disabled = false;
+  document.getElementById('sSaveBtn').textContent = '保存';
+  document.getElementById('sForm').classList.add('show');
+  fillNameDatalist();
+  setTimeout(function () {
+    document.getElementById(s ? 'sFScore' : 'sFSub').focus();
+  }, 80);
+}
+function closeScoreForm() { document.getElementById('sForm').classList.remove('show'); }
+
+function fillNameDatalist() {
+  var seen = [];
+  SCDATA.forEach(function (s) { if (seen.indexOf(s.name) < 0) seen.push(s.name); });
+  function put(extra) {
+    var all = seen.slice();
+    (extra || []).forEach(function (n) { if (all.indexOf(n) < 0) all.push(n); });
+    document.getElementById('nameList').innerHTML = all.map(function (n) {
+      return '<option value="' + esc(n) + '">';
+    }).join('');
+  }
+  put();
+  api({ action: 'users' }).then(function (r) {
+    put(((r && r.users) || []).map(function (u) { return u.name; }));
+  }).catch(function () {});
+}
+
+function saveScore(cont) {
+  var p = {
+    name: document.getElementById('sFName').value.trim(),
+    test: document.getElementById('sFTest').value.trim(),
+    date: document.getElementById('sFDate').value,
+    subject: document.getElementById('sFSub').value.trim(),
+    score: normNum_(document.getElementById('sFScore').value),
+    max: normNum_(document.getElementById('sFMax').value) || '100',
+    memo: document.getElementById('sFMemo').value.trim(),
+    author: me ? me.name : ''
+  };
+  if (!p.name) { alert('名前を入れてください'); document.getElementById('sFName').focus(); return; }
+  if (!p.test) { alert('テスト名を入れてください'); document.getElementById('sFTest').focus(); return; }
+  if (!p.subject) { alert('教科を入れてください'); document.getElementById('sFSub').focus(); return; }
+  if (p.score === '' || isNaN(Number(p.score))) {
+    alert('点数を数字で入れてください'); document.getElementById('sFScore').focus(); return;
+  }
+  if (isNaN(Number(p.max)) || Number(p.max) <= 0) p.max = '100';
+
+  var btn = document.getElementById('sSaveBtn');
+  btn.disabled = true; btn.textContent = '保存中…';
+
+  var act = sEditingId
+    ? api(Object.assign({ action: 'score_update', id: sEditingId }, p))
+    : api(Object.assign({ action: 'score_add' }, p));
+
+  act.then(function (r) {
+    if (!r || !r.ok) throw new Error((r && r.error) || '保存に失敗しました');
+    lastScoreName = p.name;
+    try { localStorage.setItem('gakkou_score_name', p.name); } catch (e) {}
+    btn.disabled = false; btn.textContent = '保存';
+    if (cont && !sEditingId) {
+      /* 同じテストの続きをすぐ入力できるように */
+      document.getElementById('sFSub').value = '';
+      document.getElementById('sFScore').value = '';
+      document.getElementById('sFMemo').value = '';
+      document.getElementById('sFSub').focus();
+    } else {
+      closeScoreForm();
+    }
+    return reloadScores();
+  }).catch(function (e) {
+    btn.disabled = false; btn.textContent = '保存';
+    alert('保存に失敗しました: ' + e.message);
+  });
 }
 
 /* =============================== 起動 ==================================== */
