@@ -237,6 +237,12 @@
   body.dark .pMain b { color: #f1f5f9; }
   body.dark .pSub { color: #8b9db4; }
 
+  /* ===== 導入ガイド ===== */
+  .gSteps { padding-left: 24px; margin: 10px 0 0; }
+  .gSteps li { font-size: 15px; line-height: 1.7; margin-bottom: 11px; padding-left: 3px; }
+  .gSteps li b { color: #1e46b5; }
+  body.dark .gSteps li b { color: #8fb4ff; }
+
   /* ===== ダークモード ===== */
   body.dark { background: #0f172a; color: #e2e8f0; }
   body.dark .card { background: #182334; box-shadow: none; border: 1px solid #24324a; }
@@ -300,6 +306,7 @@
         <button class="btn primary big" id="createBtn" style="width:100%" onclick="createUser()">作成してログイン</button>
         <div class="err" id="createErr"></div>
       </div>
+      <button class="btn link" style="width:100%;margin-top:10px" onclick="openGuide()">📱 ホーム画面に追加する方法(アプリの入れ方)</button>
     </div>
 
     <p class="note">
@@ -447,6 +454,7 @@
 
     <div class="dsec">
       <h3>🛠 ツール</h3>
+      <button class="drow" onclick="openGuide()">📱 アプリの入れ方・URLを送る</button>
       <button class="drow" onclick="openCp()">🛠 コントロールパネル(一斉設定・管理)</button>
       <button class="drow" onclick="closeDrawer();askPush()">🔔 通知を確認する</button>
       <button class="drow" onclick="closeDrawer();runDiag()">🩺 診断 / ヘルプ</button>
@@ -538,6 +546,35 @@
       <button class="btn blue" id="pEdit">✏️ 編集</button>
       <button class="btn danger" id="pDel">🗑 削除</button>
       <button class="btn" onclick="closePeriodical()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 導入ガイド(アプリの入れ方) ================= -->
+<div class="modal" id="guideModal" style="z-index:66" onclick="if(event.target===this)closeGuide()">
+  <div class="sheet">
+    <h2>📱 アプリの入れ方(ホーム画面に追加)</h2>
+
+    <div class="hint">受け取る人はこの <b>QR</b> をiPhoneのカメラで読み取るか、下のURLを送ってください</div>
+    <div style="text-align:center;margin-top:10px">
+      <img id="qrImg" alt="QR" style="width:180px;height:180px;border:1px solid #e3e8f0;
+        border-radius:12px;background:#fff">
+      <div class="hint" id="qrUrl" style="word-break:break-all;margin-top:6px"></div>
+    </div>
+    <div class="acts2" style="margin-top:6px">
+      <button class="btn blue" onclick="copyUrl()">📋 URLをコピー</button>
+      <button class="btn" onclick="shareUrl()">📤 送る(シェア)</button>
+    </div>
+
+    <div id="guideSteps" style="margin-top:16px"></div>
+
+    <div class="hint" style="margin-top:6px">
+      ⚠️ iPhoneは <b>Safariのタブのままでは通知が付きません</b>。
+      必ず「ホーム画面に追加」して、アイコンから開いてください
+    </div>
+
+    <div class="acts2">
+      <button class="btn" onclick="closeGuide()">閉じる</button>
     </div>
   </div>
 </div>
@@ -1544,6 +1581,76 @@ function openPeriodical(id) {
   };
 
   document.getElementById('pDetail').classList.add('show');
+}
+
+/* ============================ 導入ガイド =================================== */
+function guideUrl_() { return location.href.split('#')[0]; }
+
+function openGuide() {
+  closeDrawer();
+  var url = guideUrl_();
+  document.getElementById('qrImg').src =
+    'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=' + encodeURIComponent(url);
+  document.getElementById('qrUrl').textContent = url;
+
+  var ios = isIOS(), android = /Android/.test(navigator.userAgent);
+  var html;
+  if (ios) {
+    html = [
+      '<b>①</b> QRを読み取るか URLをタップして <b>Safari</b> で開く',
+      '<b>②</b> 下部の <b>共有ボタン(□↑)</b> をタップ',
+      '<b>③</b> 下にスクロールして <b>「ホーム画面に追加」</b> → <b>「追加」</b>',
+      '<b>④</b> ホーム画面に増えた <b>アイコンから開く</b>(Safariのままでは通知が付きません)',
+      '<b>⑤</b> <b>「🔔 通知を有効にする」</b> → 許可 → ヘッダーが <b>緑の「通知ON」</b> になれば完了',
+      '<b>⑥</b> ログイン画面で名前タップ → PIN入力'
+    ];
+  } else if (android) {
+    html = [
+      '<b>①</b> QRを読み取るか URLをタップして <b>Chrome</b> で開く',
+      '<b>②</b> 右上の <b>⋮(メニュー)</b> → <b>「アプリをインストール」</b>(なければ「ホーム画面に追加」)',
+      '<b>③</b> ホーム画面の <b>アイコンから開く</b>',
+      '<b>④</b> <b>「🔔 通知を有効にする」</b> → 許可 → 緑の「通知ON」になれば完了',
+      '<b>⑤</b> 名前タップ → PIN入力でログイン'
+    ];
+  } else {
+    html = [
+      '<b>この端末ではQRの案内を表示中</b>。相手の端末では:',
+      '・<b>iPhone</b>: Safariで開く → 共有(□↑)→「ホーム画面に追加」→ アイコンから開く → 🔔有効化',
+      '・<b>Android</b>: Chromeで開く → ⋮ →「アプリをインストール」→ アイコンから開く → 🔔有効化'
+    ];
+  }
+  document.getElementById('guideSteps').innerHTML = '<ol class="gSteps">' + html.map(function (s) {
+    return '<li>' + s + '</li>';
+  }).join('') + '</ol>';
+
+  document.getElementById('guideModal').classList.add('show');
+}
+function closeGuide() { document.getElementById('guideModal').classList.remove('show'); }
+
+function copyUrl() {
+  var url = guideUrl_();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function () {
+      alert('コピーしました。\nLINE等に貼り付けて送ってください');
+    }).catch(function () { fallbackCopy_(url); });
+  } else fallbackCopy_(url);
+}
+function fallbackCopy_(url) {
+  var ta = document.createElement('textarea');
+  ta.value = url;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); alert('コピーしました'); }
+  catch (e) { alert('コピーできませんでした: ' + url); }
+  document.body.removeChild(ta);
+}
+function shareUrl() {
+  var url = guideUrl_();
+  if (navigator.share) {
+    navigator.share({ title: '学校プリント・連絡', text: 'アプリのURLです', url: url }).catch(function () {});
+  } else {
+    copyUrl();
+  }
 }
 
 /* =============================== 起動 ==================================== */
